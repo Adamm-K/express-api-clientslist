@@ -1,5 +1,5 @@
 const express = require('express');
-const uuidv4 = require('uuid');
+const uuid = require('uuid').v4;
 const db = require('./../db.js');
 
 const router = express.Router();
@@ -17,31 +17,43 @@ router.route('/seats/:id').get((req, res) => {
 });
 
 router.route('/seats').post((req, res) => {
-  const { author, text } = req.body;
-  const id = uuidv4();
-
-  const newTestimonial = {
+    const { day, seat, client, email } = req.body;
+    const id = uuid();
+    const newSeat = {
     id: id,
-    author: author,
-    text: text,
+    day: day,
+    seat: seat,
+    client: client,
+    email: email,
   };
 
-  db.seats.push(newTestimonial);
-  res.json({ message: 'ok' });
+  if (
+    !db.seats.some(
+      (seat) => seat.day == newSeat.day && seat.seat == newSeat.seat
+    )
+  ) {
+    db.seats.push(newSeat);
+    res.json({ message: 'ok' });
+  } else {
+    res.json({ message: 'The slot is already taken...' });
+    res.status(409).json({ message: 'The slot is already taken...' });
+  }
 });
 
 router.route('/seats/:id').put((req, res) => {
   const id = req.params.id;
-  const findTestimonial = db.seats.find((data) => data.id == id);
-  const index = db.seats.indexOf(findTestimonial);
-  const { author, text } = req.body;
-  const changeTestimonial = {
+  const findSeat = db.seats.find((data) => data.id == id);
+  const index = db.seats.indexOf(findSeat);
+  const { day, seat, client, email } = req.body;
+  const changeSeat = {
     id: id,
-    author: author,
-    text: text,
+    day: day,
+    seat: seat,
+    client: client,
+    email: email,
   };
 
-  db.seats[index] = changeTestimonial;
+  db.seats[index] = changeSeat;
   res.json({ message: 'ok' });
 });
 
