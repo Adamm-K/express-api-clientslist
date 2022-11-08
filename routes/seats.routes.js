@@ -33,7 +33,8 @@ router.route('/seats').post((req, res) => {
     )
   ) {
     db.seats.push(newSeat);
-    res.json({ message: 'ok' });
+    req.io.emit('seatsUpdated', db.seats);
+    res.json({ message: 'ok!' });
   } else {
     res.json({ message: 'The slot is already taken...' });
     res.status(409).json({ message: 'The slot is already taken...' });
