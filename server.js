@@ -45,13 +45,21 @@ io.on('connection', (socket) => {
 });
 
 // connects our backend code with the database
-mongoose.connect(
-  'mongodb+srv://AdamK:UJiGNuqnx91iusY@cluster0.jseccin.mongodb.net/NewWaveDB',
-  { useNewUrlParser: true }
-  );
+const NODE_ENV = process.env.NODE_ENV;
+let dbUri = '';
+
+if (NODE_ENV === 'production') dbUri = 'url to remote db';
+else if (NODE_ENV === 'test') dbUri = 'mongodb://localhost:27017/companyDBtest';
+else
+  dbUri =
+    'mongodb+srv://AdamK:UJiGNuqnx91iusY@cluster0.jseccin.mongodb.net/NewWaveDB';
+
+mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
 
 db.once('open', () => {
   console.log('Connected to the database');
 });
 db.on('error', (err) => console.log('Error ' + err));
+
+module.exports = server;
