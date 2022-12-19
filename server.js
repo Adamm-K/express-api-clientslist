@@ -3,12 +3,14 @@ const cors = require('cors');
 const path = require('path');
 const socket = require('socket.io');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
 
 const app = express();
 
 const testimonials = require('./routes/testimonials.routes.js');
 const concerts = require('./routes/concerts.routes.js');
 const seats = require('./routes/seats.routes.js');
+const workshops = require('./routes/workshops.routes.js');
 
 app.use((req, res, next) => {
   req.io = io;
@@ -18,11 +20,13 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
+app.use(helmet());
 app.use(express.static(path.join(__dirname, '/client/build')));
 
 app.use('/api', testimonials);
 app.use('/api', concerts);
 app.use('/api', seats);
+app.use('/api', workshops);
 
 app.use(express.static(path.join(__dirname, '/client/build')));
 
@@ -46,13 +50,13 @@ io.on('connection', (socket) => {
 
 // connects our backend code with the database
 const NODE_ENV = process.env.NODE_ENV;
+
 let dbUri = '';
 
-if (NODE_ENV === 'production') dbUri = 'url to remote db';
+if (NODE_ENV === 'production') dbUri = process.env.DB_URL;
+
 else if (NODE_ENV === 'test') dbUri = 'mongodb://localhost:27017/companyDBtest';
-else
-  dbUri =
-    'mongodb+srv://AdamK:UJiGNuqnx91iusY@cluster0.jseccin.mongodb.net/NewWaveDB';
+else dbUri = 'mongodb://localhost:27017/NewWaveDB';
 
 mongoose.connect(dbUri, { useNewUrlParser: true, useUnifiedTopology: true });
 const db = mongoose.connection;
